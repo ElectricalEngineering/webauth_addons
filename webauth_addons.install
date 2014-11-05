@@ -1,0 +1,38 @@
+<?php
+/**
+ * @file webauth_addons.install
+ * Install hooks provided by the Webauth Add-Ons module.
+ */
+
+
+/**
+ * Implements hook_install()
+ */
+function webauth_addons_install() {
+
+  variable_set('webauth_user_register', variable_get('user_register')); // Save the old setting for user register
+  variable_set('user_register', '9505'); // Set the new user register setting to Stanford Only
+  variable_set('intranet_base', 'intranet'); // Create variable for intranet base ($base_url/intranet)
+  foreach(user_roles() as $key => $role):
+    if(preg_match('/(sunet)/i', $role)):
+      $role_id = $key;
+    else:
+      continue;
+    endif;
+  endforeach;
+  $role_id = (isset($role_id) ? $role_id : '1');
+  variable_set('webauth_addons_role', $role_id); // Default variable for what the SUNet Role is defined as.
+}
+
+/**
+ * Implements hook_uninstall()
+ */
+function webauth_addons_uninstall() {
+
+  variable_set('user_register', variable_get('webauth_user_register')); // Revert the user register setting to the before time
+  variable_del('webauth_user_register'); // Delete temp variable
+  variable_del('intranet_base'); // Delete intranet base url variable
+  variable_del('webauth_addons_role'); // Delete webauth role
+}
+
+
