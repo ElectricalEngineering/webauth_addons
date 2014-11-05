@@ -1,7 +1,7 @@
 # Webauth Add-Ons
 
 ### What this module does:
- * Creates a new option under _Who can register accounts_ at https://example.stanford.edu/admin/config/people/accounts#edit-registration-cancellation for Stanford Only
+ * Creates a new option under _Who can register accounts_ at /admin/config/people/accounts#edit-registration-cancellation for Stanford Only
  * Uses _<a href="https://api.drupal.org/api/drupal/modules!search!search.pages.inc/function/template_preprocess_search_results/7" title="template_preprocess_search_results">template_preprocess_search_results</a> to prevent intranet search results from being displayed to non webauth users._
  * Removes forms from /user/register and /user/password while rewriting /user to force login with webauth.
  * Adds a function to check for defined sunet role :
