@@ -1,0 +1,129 @@
+<?php
+
+/**
+ * @file webauth_addons.module
+ * Add-Ons for the Stanford WebAuth module
+ */
+
+/**
+ * Implements hook_init().
+ */
+function webauth_addons_init() {
+
+  if(!module_exists('webauth')): // Check for webauth module
+    drupal_set_message('The Stanford WebAuth module must be enabled to use WebAuth Add-Ons.', 'error');
+    return FALSE;
+  endif;
+
+  // Load module includes
+  module_load_include('inc', 'webauth_addons', 'includes/webauth_addons');
+  module_load_include('inc', 'webauth_addons', 'includes/webauth_addons.form');
+}
+
+/**
+ * Implements hook_help()
+ * HELP!
+ */
+function webauth_addons_help($path, $arg) {
+
+  switch ($path):
+    case 'admin/help#webauth_addons':
+    case 'admin/config/modules#description':
+      $webauth_addons_desc = t('<p class="lead text-primary">A few add-ons for the Stanford WebAuth Module. <br />This version contains these additions :</p>');
+      $webauth_addons_desc .= t('<dl><dt>Search filtering </dt><dd>Will not display intranet results unless the user is logged in with webauth.</dd>');
+      $webauth_addons_desc .= t('<dt>New Configuration Option</dt><dd>Adds a configuration option in <i>Configuration -> People -> <a href="@account_url" title="Acount Settings" target="_blank">Account Settings</a></i> under <i>Registration and cancellation</i> for Stanford Only authentication</dd></dl>', array('@account_url' => url('admin/config/people/accounts', array('fragment'=>'edit-registration-cancellation'))));
+      return $webauth_addons_desc;
+      break;
+  endswitch;
+
+}
+
+/**
+ * Implements hook_permission()
+ */
+function webauth_addons_permission() {
+
+  return array(
+    'administrate webauth_addons' => array(
+      'title' => t('Administrate WebAuth Add-Ons Settings'),
+      'description' => t('Allow users to administer the WebAuth Add-Ons settings'),
+    )
+  );
+
+}
+
+/**
+ * Implements hook_access()
+ */
+function webauth_addons_access() {
+
+  return user_access( array('administrate webauth_addons') );
+
+}
+
+/**
+ * Implements hook_menu()
+ * Create the options menu
+ */
+function webauth_addons_menu() {
+
+  $items['admin/config/webauth/addons'] = array(
+    'title' => 'WebAuth Add-ons',
+    'description' => 'Settings for the WebAuth add-ons module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('webauth_addons_options'),
+    'access arguments' => array('administrate webauth_addons'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+
+}
+
+/**
+ * Configuration options menu
+ * Set configuration options for
+ * webauth_addons module
+ */
+function webauth_addons_options() {
+
+  global $base_url;
+
+  $intranet = variable_get('intranet_base', 'intranet');
+
+  $form['intranet_base'] = array(
+    '#title' => t('The base url of your intranet pages.'),
+    '#type' => 'textfield',
+    '#description' => t('<div><br />If your intranet pages reside at <code>@intranet/intranet</code>, you would enter "<b>intranet</b>" here.  Defaults to "<b>intranet</b>".</div>', array('@intranet' => $base_url) ),
+    '#default_value' => $intranet,
+    '#required' => FALSE,
+    '#prefix' => t('<p class="lead">Settings for WebAuth Add-Ons</p>'),
+  );
+
+  $form['webauth_addons_role'] = array(
+    '#title' => 'SUNet Role',
+    '#type' => 'select',
+    '#options' => user_roles(),
+    '#description' => t('The name of the SUNet Role for your site. (<i>Usually "SUNet User"</i>)<br />You can add and delete roles by going <a href="@roles" target="_blank" title="Modify roles">here</a>.', array('@roles'=> url('admin/people/permissions/roles'))),
+    '#default_value' => variable_get('webauth_addons_role', '1'),
+    '#required' => TRUE,
+  );
+
+  $form['#validate'][] = 'webauth_addons_options_validate'; // Custom validation to strip out any special characters.
+
+  return system_settings_form($form);
+
+}
+
+/**
+ * Validation for the options menu
+ * Strips all characters except a-z
+ * '/intranet@-' becomes 'intranet'
+ */
+function webauth_addons_options_validate($form, &$form_state) {
+
+  $intranet = strtolower($form_state['values']['intranet_base']);
+
+  $form_state['values']['intranet_base'] = preg_replace('/[^a-z0-9]+/', '', $intranet);
+
+}

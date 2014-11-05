@@ -1,0 +1,11 @@
+name = Webauth Add-Ons
+description =  A few add ons for the webauth module
+dependencies[] = webauth
+dependencies[] = globalredirect
+core = 7.x
+package = Electrical Engineering
+files[] = webauth_addons.install
+files[] = includes/webauth_addons.inc
+files[] = includes/webauth_addons.form.inc
+configure = admin/config/webauth/addons
+version = 7.x-1.x-dev
