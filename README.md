@@ -5,13 +5,14 @@
  * Uses _<a href="https://api.drupal.org/api/drupal/modules!search!search.pages.inc/function/template_preprocess_search_results/7" title="template_preprocess_search_results">template_preprocess_search_results</a> to prevent intranet search results from being displayed to non webauth users._
  * Removes forms from /user/register and /user/password while rewriting /user to force login with webauth.
  * Adds a function to check for defined sunet role :
- ```php
+```php
 if(!function_exists('sunet_role')):
   function sunet_role() {
     global $user;
     return array_key_exists(variable_get('webauth_addons_role', '1'), $user->roles);
   }
-endif;```
+endif;
+```
 
 ### What this module does not do:
 
