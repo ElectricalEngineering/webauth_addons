@@ -10,12 +10,12 @@
  * @return bool
  */
 if(!function_exists('sunet_role')):
-function sunet_role() {
-  global $user;
-
-  return array_key_exists(variable_get('webauth_addons_role', '1'), $user->roles);
-}
+  function sunet_role() {
+    global $user;
+    return (bool)array_key_exists(variable_get('webauth_addons_role', 'webauth_default_role'), $user->roles);
+  }
 endif;
+
 /**
  * Implements hook_preprocess_page()
  */
@@ -25,11 +25,11 @@ function webauth_addons_preprocess_page(&$vars, $hook) {
 
   if( arg(0) == 'user' && (variable_get('user_register') && variable_get('user_register') == '9505') && !sunet_role() ):
     unset($vars['tabs']);
-    drupal_goto('/sites/default/webauth/login');
+    drupal_goto( url( variable_get('webauth_path', '/sites/default/webauth/login') ) );
   endif;
 
   if(arg(0) == 'user' && arg(1) == 'register' && (variable_get('user_register') && variable_get('user_register') == '9505')):
-    drupal_set_title('Local registration is closed');
+    drupal_set_title(t('Local registration is closed'));
     $vars['page']['content'] = t('<p>Local registration is closed.  Please login or create an account by clicking the "Log in" tab above.</p>');
   endif;
 

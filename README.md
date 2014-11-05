@@ -21,4 +21,4 @@ endif;
 ## Requirments
 
  * Stanford webauth drupal module (https://drupalfeatures.stanford.edu/project/webauth)
- * Global Redirect (https://www.drupal.org/project/globalredirect)
+ * Global Redirect (https://www.drupal.org/project/globalredirect)  Webauth Addons does not directly use this, but needs it to hide /node/ urls.

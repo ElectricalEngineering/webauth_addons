@@ -11,7 +11,7 @@
 function webauth_addons_init() {
 
   if(!module_exists('webauth')): // Check for webauth module
-    drupal_set_message('The Stanford WebAuth module must be enabled to use WebAuth Add-Ons.', 'error');
+    drupal_set_message(t('The Stanford WebAuth module must be enabled to use WebAuth Add-Ons.'), 'error');
     return FALSE;
   endif;
 
@@ -68,8 +68,8 @@ function webauth_addons_access() {
 function webauth_addons_menu() {
 
   $items['admin/config/webauth/addons'] = array(
-    'title' => 'WebAuth Add-ons',
-    'description' => 'Settings for the WebAuth add-ons module',
+    'title' => t('WebAuth Add-ons'),
+    'description' => t('Settings for the WebAuth add-ons module'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('webauth_addons_options'),
     'access arguments' => array('administrate webauth_addons'),
@@ -89,23 +89,21 @@ function webauth_addons_options() {
 
   global $base_url;
 
-  $intranet = variable_get('intranet_base', 'intranet');
-
   $form['intranet_base'] = array(
     '#title' => t('The base url of your intranet pages.'),
     '#type' => 'textfield',
-    '#description' => t('<div><br />If your intranet pages reside at <code>@intranet/intranet</code>, you would enter "<b>intranet</b>" here.  Defaults to "<b>intranet</b>".</div>', array('@intranet' => $base_url) ),
-    '#default_value' => $intranet,
-    '#required' => FALSE,
+    '#description' => t('<div><br />If your intranet pages reside at <code>@burl/intranet</code>, you would enter "<b>intranet</b>" here.  Defaults to "<b>intranet</b>".</div>', array('@burl' => $base_url) ),
+    '#default_value' =>variable_get('intranet_base', 'intranet'),
+    '#required' => TRUE,
     '#prefix' => t('<p class="lead">Settings for WebAuth Add-Ons</p>'),
   );
 
   $form['webauth_addons_role'] = array(
-    '#title' => 'SUNet Role',
+    '#title' => t('SUNet Role'),
     '#type' => 'select',
     '#options' => user_roles(),
     '#description' => t('The name of the SUNet Role for your site. (<i>Usually "SUNet User"</i>)<br />You can add and delete roles by going <a href="@roles" target="_blank" title="Modify roles">here</a>.', array('@roles'=> url('admin/people/permissions/roles'))),
-    '#default_value' => variable_get('webauth_addons_role', '1'),
+    '#default_value' => variable_get('webauth_addons_role', 3),
     '#required' => TRUE,
   );
 
@@ -122,7 +120,7 @@ function webauth_addons_options() {
  */
 function webauth_addons_options_validate($form, &$form_state) {
 
-  $intranet = strtolower($form_state['values']['intranet_base']);
+  $intranet = check_plain(strtolower($form_state['values']['intranet_base']));
 
   $form_state['values']['intranet_base'] = preg_replace('/[^a-z0-9]+/', '', $intranet);
 

@@ -24,7 +24,7 @@ function _turn_off_register_reset(&$form, &$form_state){
  */
 function webauth_addons_form_user_admin_settings_alter(&$form, &$form_state) {
 
-    $form['registration_cancellation']['user_register']['#options'][9505] = 'Stanford Only';
+    $form['registration_cancellation']['user_register']['#options'][9505] = t('Stanford Only');
     $form['#rebuild'] = TRUE;
 
 }
