@@ -8,4 +8,4 @@ files[] = webauth_addons.install
 files[] = includes/webauth_addons.inc
 files[] = includes/webauth_addons.form.inc
 configure = admin/config/webauth/addons
-version = 7.x-1.x-dev
+version = 7.x-1.1
