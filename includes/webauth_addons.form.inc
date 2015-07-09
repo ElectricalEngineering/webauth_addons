@@ -7,15 +7,15 @@
 /**
  * Function to turn off login/register form elements
  */
-function _turn_off_register_reset(&$form, &$form_state){
+if(!function_exists('_turn_off_register_reset')):
+  function _turn_off_register_reset(&$form, &$form_state){
 
-  if( variable_get('user_register') && variable_get('user_register') == '9505' ):
-    $form['name']['#access'] = FALSE;
-    $form['actions']['#access'] = FALSE;
-  endif;
-
-}
-
+    if( variable_get('user_register') && variable_get('user_register') == '9505' ):
+      $form['name']['#access'] = FALSE;
+      $form['actions']['#access'] = FALSE;
+    endif;
+  }
+endif;
 /**
  * Implements hook_form_FORM_ID_alter()
  * Add Stanford only option and set it to
@@ -43,7 +43,7 @@ function webauth_addons_form_user_register_form_alter(&$form, &$form_state) {
  * Implements hook_form_FORM_ID_alter()
  * Deny access to user password reset form
  */
-function stanford_wilbur_form_user_pass_alter(&$form, &$form_state) {
+function webauth_addons_form_user_pass_alter(&$form, &$form_state) {
 
   _turn_off_register_reset($form, $form_state);
 
@@ -53,7 +53,7 @@ function stanford_wilbur_form_user_pass_alter(&$form, &$form_state) {
  * Implements hook_form_FORM_ID_alter()
  * Deny access to local login form
  */
-function stanford_wilbur_form_user_login_alter(&$form, &$form_state) {
+function webauth_addons_form_user_login_alter(&$form, &$form_state) {
 
   if( variable_get('user_register') && variable_get('user_register') == '3' && !sunet_role() ):
    _turn_off_register_reset($form, $form_state);
