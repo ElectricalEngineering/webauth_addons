@@ -47,6 +47,10 @@ function webauth_addons_permission() {
     'administrate webauth_addons' => array(
       'title' => t('Administrate WebAuth Add-Ons Settings'),
       'description' => t('Allow users to administer the WebAuth Add-Ons settings'),
+    ),
+    'view webauth addons debug' => array(
+      'title' => t('View debugging information from webauth addons.'),
+      'description' => t('View debugging information from webauth addons')
     )
   );
 
@@ -57,7 +61,9 @@ function webauth_addons_permission() {
  */
 function webauth_addons_access() {
 
-  return user_access( array('administrate webauth_addons') );
+  return user_access(
+    array('administrate webauth_addons', 'view webauth addons debug')
+    );
 
 }
 
