@@ -1,0 +1,10 @@
+webauth_addons.settings:
+  type: mapping
+  label: Settings
+  mapping:
+    webauth_addons_role:
+      type: string
+    webauth_addons_intranet_frequency:
+      type: integer
+    webauth_addons_last_cron:
+      type: integer

@@ -13,8 +13,8 @@ define('WAA_DEBUG', 0);
  */
 if(!function_exists('sunet_role')):
   function sunet_role() {
-    global $user;
-    return (bool)array_key_exists(variable_get('webauth_addons_role', 'webauth_default_role'), $user->roles);
+    $user = \Drupal::currentUser();
+    return (bool)array_key_exists(\Drupal::config('webauth_addons.settings')->get('webauth_addons_role'), $user->roles);
   }
 endif;
 
@@ -47,11 +47,11 @@ function waa_default_string() {
 if(!function_exists('waa_debug')):
   function waa_debug($obj, $name = 'WAA_DEBUG : ', $type = 'debug') {
 
-    global $user;
+    $user = \Drupal::currentUser();
 
     $function = function_exists('dpm') ? dpm : waa_r;
 
-    if( (defined('WAA_DEBUG') &&  WAA_DEBUG) && ( user_access('access devel information', $user) || user_access('view webauth addons debug', $user) ) ):
+    if( (defined('WAA_DEBUG') &&  WAA_DEBUG) && ( $user->hasPermission('access devel information') || $user->hasPermission('view webauth addons debug') ) ):
 
      $function($obj, $name, $type);
 
@@ -67,24 +67,56 @@ function webauth_addons_preprocess_page(&$vars, $hook) {
 
   $vars['clean_url'] = drupal_get_path_alias( implode( '/', arg() ) );
 
-  if( arg(0) == 'user' && (variable_get('user_register') && variable_get('user_register') == '9505') && !sunet_role() ):
-    unset($vars['tabs']);
-#    drupal_goto( url( variable_get('webauth_path', '/sites/default/webauth/login') ) );
-     drupal_goto( url('sites/default/webauth/login') );
-  endif;
+  // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// if( arg(0) == 'user' && (variable_get('user_register') && variable_get('user_register') == '9505') && !sunet_role() ):
+//     unset($vars['tabs']);
+// #    drupal_goto( url( variable_get('webauth_path', '/sites/default/webauth/login') ) );
+//      // @FIXME
+// // url() expects a route name or an external URI.
+// // drupal_goto( url('sites/default/webauth/login') );
+// 
+//   endif;
 
-  if(arg(0) == 'user' && arg(1) == 'register' && (variable_get('user_register') && variable_get('user_register') == '9505')):
-    drupal_set_title(t('Local registration is closed'));
-    $vars['page']['content'] = t('<p>Local registration is closed.  Please login or create an account by clicking the "Log in" tab above.</p>');
-  endif;
 
-  if(arg(0) == 'user' && arg(1) == 'password' && (variable_get('user_register') && variable_get('user_register') == '9505')):
-    drupal_set_title(t('Reset your SUNet ID Password'));
-    $vars['page']['content'] = t('<p>To request a new SUNet ID password, please follow this <a href="@link" rel="nofollow">link</a>.</p>', array('@link' => url('https://accounts.stanford.edu/resetpw?execution=e1s1', array('external' => true) ) ) );
-    if( !sunet_role() ):
-      $vars['page']['content'] .= t('<p>To login, click the "Log in" tab above.</p>');
-    endif;
-  endif;
+  // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// if(arg(0) == 'user' && arg(1) == 'register' && (variable_get('user_register') && variable_get('user_register') == '9505')):
+//     // @FIXME
+// // drupal_set_title() has been removed. There are now a few ways to set the title
+// // dynamically, depending on the situation.
+// //
+// //
+// // @see https://www.drupal.org/node/2067859
+// // drupal_set_title(t('Local registration is closed'));
+// 
+//     $vars['page']['content'] = t('<p>Local registration is closed.  Please login or create an account by clicking the "Log in" tab above.</p>');
+//   endif;
+
+
+  // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// if(arg(0) == 'user' && arg(1) == 'password' && (variable_get('user_register') && variable_get('user_register') == '9505')):
+//     // @FIXME
+// // drupal_set_title() has been removed. There are now a few ways to set the title
+// // dynamically, depending on the situation.
+// //
+// //
+// // @see https://www.drupal.org/node/2067859
+// // drupal_set_title(t('Reset your SUNet ID Password'));
+// 
+//     $vars['page']['content'] = t('<p>To request a new SUNet ID password, please follow this <a href="@link" rel="nofollow">link</a>.</p>', array('@link' => \Drupal\Core\Url::fromUri('https://accounts.stanford.edu/resetpw?execution=e1s1') ) );
+//     if( !sunet_role() ):
+//       $vars['page']['content'] .= t('<p>To login, click the "Log in" tab above.</p>');
+//     endif;
+//   endif;
+
 
 //debug
 
@@ -100,13 +132,13 @@ function _webauth_addons_cache( $gen = false )  {
   if(!$nids):
 
     $cache_id = 'webauth_addons:intranet_cache';
-    $cache = cache_get($cache_id, 'cache');
+    $cache = \Drupal::cache('cache')->get($cache_id);
 
     if($cache && !empty($cache->data)):
       $nids = $cache->data;
     else:
       $nids = _webauth_addons_get_intranet_nids(true);
-      cache_set($cache_id, $nids, 'cache', ( REQUEST_TIME + 60 * 60 ) ); //1 hour
+      \Drupal::cache('cache')->set($cache_id, $nids, ( REQUEST_TIME + 60 * 60 )); //1 hour
     endif; // $cache !empty($cache->data)
 
   endif; // !$nids
@@ -116,29 +148,33 @@ function _webauth_addons_cache( $gen = false )  {
 
 function _webauth_addons_get_intranet_nids( $gen = false ) {
 
-  $vars = variable_get('webauth_addons_intranet_nids');
+  // @FIXME
+// Could not extract the default value because it is either indeterminate, or
+// not scalar. You'll need to provide a default value in
+// config/install/webauth_addons.settings.yml and config/schema/webauth_addons.schema.yml.
+$vars = \Drupal::config('webauth_addons.settings')->get('webauth_addons_intranet_nids');
 
   if(!$vars || $gen ):
 
     if($gen):
       $message = 'Forced update of intranet pages cache from @file on line @line in @function function.';
-      watchdog(
-        'webauth_addons',
-        check_plain($message),
-        array('@line' => __LINE__, '@file' => __FILE__, '@function' => __FUNCTION__),
-        WATCHDOG_NOTICE
-      );
+      \Drupal::logger('webauth_addons')->notice(\Drupal\Component\Utility\SafeMarkup::checkPlain($message), array('@line' => __LINE__, '@file' => __FILE__, '@function' => __FUNCTION__));
     endif;
 
     $vars['ts'] = REQUEST_TIME;
     $vars['updated'] = date();
 
-    $aliases = db_select('url_alias', 'a')
-      ->fields('a', array('source', 'alias'))
-      ->condition('a.alias', '%' . db_like( variable_get('intranet_base','intranet') ) . '%', 'LIKE' )
-      ->addTag('node_access')
-      ->execute()
-      ->fetchAll();
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $aliases = db_select('url_alias', 'a')
+//       ->fields('a', array('source', 'alias'))
+//       ->condition('a.alias', '%' . db_like( variable_get('intranet_base','intranet') ) . '%', 'LIKE' )
+//       ->addTag('node_access')
+//       ->execute()
+//       ->fetchAll();
+
 
     foreach($aliases as $alias):
       $nids[] = end( explode('/', $alias->source) );
@@ -149,7 +185,7 @@ function _webauth_addons_get_intranet_nids( $gen = false ) {
     $aliases = NULL;
     $vars['nids'] = $nids;
 
-    variable_set('webauth_addons_intranet_nids', $vars);
+    \Drupal::configFactory()->getEditable('webauth_addons.settings')->set('webauth_addons_intranet_nids', $vars)->save();
 
   endif;
 
@@ -158,21 +194,16 @@ function _webauth_addons_get_intranet_nids( $gen = false ) {
 }
 function webauth_addons_cron() {
 
-  $frequency = variable_get('webauth_addons_intranet_frequency', 1);
+  $frequency = \Drupal::config('webauth_addons.settings')->get('webauth_addons_intranet_frequency');
   $interval = 60 * 60 * 24 * $frequency;
 
-  if ((REQUEST_TIME - variable_get('webauth_addons_last_cron', 0)) > $interval):
+  if ((REQUEST_TIME - \Drupal::config('webauth_addons.settings')->get('webauth_addons_last_cron')) > $interval):
 
     _webauth_addons_get_intranet_nids(true);
 
     $message = 'Updated intranet pages cache from @file on line @line in @function function.';
-    watchdog(
-        'webauth_addons',
-        check_plain($message),
-        array('@line' => __LINE__, '@file' => __FILE__, '@function' => __FUNCTION__),
-        WATCHDOG_INFO
-      );
-    variable_set('webauth_addons_last_cron', REQUEST_TIME);
+    \Drupal::logger('webauth_addons')->info(\Drupal\Component\Utility\SafeMarkup::checkPlain($message), array('@line' => __LINE__, '@file' => __FILE__, '@function' => __FUNCTION__));
+    \Drupal::configFactory()->getEditable('webauth_addons.settings')->set('webauth_addons_last_cron', REQUEST_TIME)->save();
   endif;
 
 
@@ -182,7 +213,7 @@ function webauth_addons_cron() {
  */
 function webauth_addons_query_search_node_alter(&$query) {
 
-  if( (defined('WAA_DEBUG') &&  WAA_DEBUG) && ( user_access('access devel information', $user) || user_access('view webauth addons debug', $user) ) ):
+  if( (defined('WAA_DEBUG') &&  WAA_DEBUG) && ( $user->hasPermission('access devel information') || $user->hasPermission('view webauth addons debug') ) ):
     $intranet_nodes = _webauth_addons_get_intranet_nids();
   endif;
 
@@ -210,7 +241,7 @@ function webauth_addons_query_search_node_alter(&$query) {
 function webauth_addons_preprocess_search_result(&$vars) {
 
   // Get the elapsed time since the last update of the node
-  $elapsed = format_interval((time() - $vars['result']['node']->changed) , 3);
+  $elapsed = \Drupal::service("date.formatter")->formatInterval((time() - $vars['result']['node']->changed) , 3);
 
   // Change the style of the search match to italics and cardinal red
   $vars['snippet'] = preg_replace('/<strong>/', '<strong style="font-style:oblique; color:#990009;">', $vars['snippet']);

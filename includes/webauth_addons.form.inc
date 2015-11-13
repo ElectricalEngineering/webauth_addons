@@ -10,10 +10,15 @@
 if(!function_exists('_turn_off_register_reset')):
   function _turn_off_register_reset(&$form, &$form_state){
 
-    if( variable_get('user_register') && variable_get('user_register') == '9505' ):
-      $form['name']['#access'] = FALSE;
-      $form['actions']['#access'] = FALSE;
-    endif;
+    // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// if( variable_get('user_register') && variable_get('user_register') == '9505' ):
+//       $form['name']['#access'] = FALSE;
+//       $form['actions']['#access'] = FALSE;
+//     endif;
+
   }
 endif;
 /**
@@ -55,8 +60,13 @@ function webauth_addons_form_user_pass_alter(&$form, &$form_state) {
  */
 function webauth_addons_form_user_login_alter(&$form, &$form_state) {
 
-  if( variable_get('user_register') && variable_get('user_register') == '3' && !sunet_role() ):
-   _turn_off_register_reset($form, $form_state);
-  endif;
+  // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// if( variable_get('user_register') && variable_get('user_register') == '3' && !sunet_role() ):
+//    _turn_off_register_reset($form, $form_state);
+//   endif;
+
 
 }
