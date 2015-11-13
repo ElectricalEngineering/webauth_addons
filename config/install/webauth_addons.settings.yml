@@ -1,0 +1,3 @@
+webauth_addons_role: webauth_default_role
+webauth_addons_intranet_frequency: 1
+webauth_addons_last_cron: 0

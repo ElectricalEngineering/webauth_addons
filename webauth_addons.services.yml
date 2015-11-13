@@ -1,0 +1,6 @@
+services:
+  init_subscriber:
+    class: Drupal\webauth_addons\EventSubscriber\InitSubscriber
+    tags:
+      -
+        name: event_subscriber
